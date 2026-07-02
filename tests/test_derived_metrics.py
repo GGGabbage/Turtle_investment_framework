@@ -15,7 +15,7 @@ MOCK_DIR = os.path.join(os.path.dirname(__file__), "fixtures", "mock_tushare_res
 
 def _load_mock(filename: str) -> pd.DataFrame:
     """Load a mock fixture as DataFrame."""
-    with open(os.path.join(MOCK_DIR, filename)) as f:
+    with open(os.path.join(MOCK_DIR, filename), encoding="utf-8") as f:
         data = json.load(f)
     if isinstance(data, list):
         return pd.DataFrame(data)

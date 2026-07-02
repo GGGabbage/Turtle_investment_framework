@@ -23,7 +23,7 @@ MOCK_DIR = os.path.join(os.path.dirname(__file__), "fixtures", "mock_tushare_res
 
 def _load_bulk_mock(filename: str) -> pd.DataFrame:
     """Load a bulk mock fixture as DataFrame."""
-    with open(os.path.join(MOCK_DIR, filename)) as f:
+    with open(os.path.join(MOCK_DIR, filename), encoding="utf-8") as f:
         data = json.load(f)
     return pd.DataFrame(data)
 
@@ -1352,7 +1352,7 @@ class TestPipelineAndExport:
         html_path = str(tmp_path / "test.html")
         screener.export_html(df, html_path)
         assert os.path.exists(html_path)
-        with open(html_path) as f:
+        with open(html_path, encoding="utf-8") as f:
             content = f.read()
         assert "龟龟选股器" in content
 

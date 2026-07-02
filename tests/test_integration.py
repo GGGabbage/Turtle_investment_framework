@@ -86,7 +86,7 @@ class TestFullPdfExtraction:
 
         # Should extract at least 4 of 7 sections
         import json
-        with open(output_path) as f:
+        with open(output_path, encoding="utf-8") as f:
             data = json.load(f)
 
         sections = ["P2", "P3", "P4", "P6", "P13", "MDA", "SUB"]
@@ -132,7 +132,7 @@ class TestFullPipeline:
 
         assert os.path.exists(pdf_output)
         import json
-        with open(pdf_output) as f:
+        with open(pdf_output, encoding="utf-8") as f:
             sections = json.load(f)
         assert "metadata" in sections
         assert sections["metadata"]["sections_total"] == 7

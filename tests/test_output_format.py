@@ -109,7 +109,7 @@ class TestPdfSectionsJsonSchema:
             "SUB": None,
         }
         self.output_data = write_output(contexts, "test_report.pdf", 200, self.output_path)
-        with open(self.output_path) as f:
+        with open(self.output_path, encoding="utf-8") as f:
             self.json_data = json.load(f)
 
     def test_required_section_keys_present(self):

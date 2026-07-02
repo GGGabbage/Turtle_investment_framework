@@ -65,7 +65,15 @@ For HK stocks:
 **Round 3 — 同花顺 (notice.10jqka.com.cn):**
 - `site:notice.10jqka.com.cn {company_name} {year} {search_keyword}`
 
-**Round 4 — 无限制搜索 (last resort):**
+**Round 4 — 东方财富 / 新浪财经 (补充):**
+- `site:data.eastmoney.com {company_name} {year} 年度报告`
+- `site:finance.sina.com.cn {formatted_code} {year} 年报 PDF`
+
+**Round 5 — 交易所官网 (A-share only):**
+- 上海: `site:sse.com.cn {formatted_code} {year} 年度报告`
+- 深圳: `site:szse.cn {formatted_code} {year} 年度报告`
+
+**Round 6 — 无限制搜索 (last resort):**
 - `{company_name} {formatted_code} {year} 年度报告 PDF`
 
 ## Step 2: Extract PDF Links
@@ -75,6 +83,11 @@ From the search results, filter URLs that match PDF links from supported sources
 https://static.cninfo.com.cn/.../*.pdf (or *.PDF)
 https://stockn.xueqiu.com/.../*.pdf
 https://notice.10jqka.com.cn/.../*.pdf
+https://static.sse.com.cn/.../*.pdf
+https://disclosure.szse.cn/.../*.pdf
+https://*.sina.com.cn/.../*.pdf
+https://*.eastmoney.com/.../*.pdf
+https://*.hkexnews.hk/.../*.pdf
 ```
 Accept any direct PDF link from these domains. Note: cninfo URLs may use uppercase `.PDF` extension.
 

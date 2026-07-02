@@ -58,6 +58,24 @@ def get_api_url() -> Optional[str]:
     return os.environ.get("TUSHARE_API_URL") or None
 
 
+def get_data_provider() -> str:
+    """Get the default data provider.
+
+    Reads DATA_PROVIDER from environment or .env file.
+    Returns 'tushare' or 'akshare'. Defaults to 'akshare' if no Tushare token.
+    """
+    _load_env_file()
+    provider = os.environ.get("DATA_PROVIDER", "").lower().strip()
+    if provider in ("tushare", "ts"):
+        return "tushare"
+    if provider in ("akshare", "ak"):
+        return "akshare"
+    # Auto-detect: if no Tushare token, default to akshare
+    if not os.environ.get("TUSHARE_TOKEN", "").strip():
+        return "akshare"
+    return "tushare"
+
+
 def validate_stock_code(code: str) -> str:
     """Validate and normalize a stock code to Tushare format.
 

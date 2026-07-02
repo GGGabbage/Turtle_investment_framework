@@ -125,19 +125,20 @@
 ### 环境准备（首次运行）
 
 ```bash
-pip install tushare pandas pdfplumber --break-system-packages
+pip install -r requirements.txt
 ```
 
 ### Step A：市场数据刷新
 
 ```
-# === 使用 --refresh-market 模式刷新市场敏感数据 ===
+# === 使用统一数据入口，自动选择 Tushare / AKShare ===
+# 优先级：--provider 参数 > DATA_PROVIDER 环境变量 > 自动检测
 # data_pack_market.md 已由 /business-analysis 生成，仅刷新 §1/§2/§11/§14
 # 超过 7 天自动降级为全量采集
 
 Bash(
-  command = "python3 scripts/tushare_collector.py --code {ts_code} --output {output_dir}/data_pack_market.md --refresh-market",
-  description = "StepA 市场数据刷新"
+  command = "python3 scripts/data_collector.py --code {ts_code} --output {output_dir}/data_pack_market.md --refresh-market",
+  description = "StepA 市场数据刷新 (auto provider)"
 )
 ```
 

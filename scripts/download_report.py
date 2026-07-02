@@ -2,12 +2,22 @@
 """
 财报PDF下载工具 (Financial Report PDF Downloader)
 
-从 stockn.xueqiu.com 或 notice.10jqka.com.cn 下载A股/港股财报PDF文件。
+从多个官方/权威渠道下载A股/港股财报PDF文件。
 支持年报、中报、一季报、三季报。
+
+支持的数据源:
+    - cninfo.com.cn (巨潮资讯网, 证监会官方披露平台)
+    - stockn.xueqiu.com (雪球)
+    - 10jqka.com.cn (同花顺)
+    - sse.com.cn (上交所)
+    - szse.cn (深交所)
+    - sina.com.cn (新浪财经)
+    - eastmoney.com (东方财富)
+    - hkexnews.hk (港交所披露易)
 
 Usage:
     python3 scripts/download_report.py \
-        --url "https://stockn.xueqiu.com/.../report.pdf" \
+        --url "https://static.cninfo.com.cn/.../report.pdf" \
         --stock-code SH600887 \
         --report-type 年报 \
         --year 2024 \
@@ -46,8 +56,17 @@ BASE_HEADERS = {
 }
 
 URL_PATTERN = re.compile(
-    r"^https?://(stockn\.xueqiu\.com|[\w.-]*10jqka\.com\.cn|[\w.-]*cninfo\.com\.cn)/.+\.pdf$",
-    re.IGNORECASE,
+    r"^https?://("
+    r"stockn\.xueqiu\.com"
+    r"|[\w.-]*10jqka\.com\.cn"
+    r"|[\w.-]*cninfo\.com\.cn"
+    r"|[\w.-]*sse\.com\.cn"
+    r"|[\w.-]*szse\.cn"
+    r"|[\w.-]*sina\.com\.cn"
+    r"|[\w.-]*eastmoney\.com"
+    r"|[\w.-]*dfcfw\.com"
+    r"|[\w.-]*hkexnews\.hk"
+    r")/.+\.[pP][dD][fF]$",
 )
 
 
@@ -58,6 +77,16 @@ def get_headers(url):
         headers["Referer"] = "https://www.cninfo.com.cn/"
     elif "10jqka.com.cn" in url:
         headers["Referer"] = "https://10jqka.com.cn/"
+    elif "sse.com.cn" in url:
+        headers["Referer"] = "http://www.sse.com.cn/"
+    elif "szse.cn" in url:
+        headers["Referer"] = "https://www.szse.cn/"
+    elif "sina.com.cn" in url:
+        headers["Referer"] = "https://finance.sina.com.cn/"
+    elif "eastmoney.com" in url or "dfcfw.com" in url:
+        headers["Referer"] = "https://www.eastmoney.com/"
+    elif "hkexnews.hk" in url:
+        headers["Referer"] = "https://www.hkexnews.hk/"
     else:
         headers["Referer"] = "https://xueqiu.com/"
     return headers
@@ -65,10 +94,10 @@ def get_headers(url):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Download financial report PDF from cninfo.com.cn, stockn.xueqiu.com, or 10jqka.com.cn"
+        description="Download financial report PDF from cninfo, xueqiu, 10jqka, SSE, SZSE, Sina, EastMoney, or HKEX"
     )
     parser.add_argument(
-        "--url", required=True, help="PDF URL from cninfo.com.cn, stockn.xueqiu.com, or 10jqka.com.cn"
+        "--url", required=True, help="PDF URL from a supported source (cninfo, xueqiu, 10jqka, SSE, SZSE, Sina, EastMoney, HKEX)"
     )
     parser.add_argument(
         "--stock-code", required=True, help="Stock code (e.g. SH600887, 00700)"
@@ -98,7 +127,9 @@ def validate_url(url):
     if not URL_PATTERN.match(url):
         return False, (
             f"Invalid URL: {url}\n"
-            "URL must be a .pdf link from cninfo.com.cn, stockn.xueqiu.com, or 10jqka.com.cn"
+            "URL must be a .pdf link from: cninfo.com.cn, stockn.xueqiu.com, "
+            "10jqka.com.cn, sse.com.cn, szse.cn, sina.com.cn, eastmoney.com, "
+            "or hkexnews.hk"
         )
     return True, ""
 
@@ -165,15 +196,25 @@ def download_annual_report(url, save_path, max_retries=DEFAULT_MAX_RETRIES):
                         # Validate PDF magic bytes on first chunk
                         if first_chunk:
                             if not chunk[:5].startswith(PDF_MAGIC_BYTES):
-                                os.remove(tmp_path)
-                                return (
-                                    False,
-                                    "PDF validation failed: file does not start with %PDF- magic bytes",
-                                    0,
-                                )
+                                # Cannot delete while file is open on Windows;
+                                # close (via __exit__) then remove
+                                break_flag = True
+                                break
                             first_chunk = False
                         f.write(chunk)
                         total_size += len(chunk)
+                else:
+                    break_flag = False
+
+            if break_flag:
+                # File is now closed, safe to remove on Windows
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+                return (
+                    False,
+                    "PDF validation failed: file does not start with %PDF- magic bytes",
+                    0,
+                )
 
             # Rename tmp to final
             if os.path.exists(save_path):

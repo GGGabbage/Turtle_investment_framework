@@ -109,15 +109,15 @@
 ### 环境准备（首次运行）
 
 ```bash
-pip install tushare pandas --break-system-packages
+pip install -r requirements.txt
 ```
 
-### Step 1：Tushare 数据采集
+### Step 1：数据采集（Tushare / AKShare 自动切换）
 
 ```
 Bash(
-  command = "python3 scripts/tushare_collector.py --code {ts_code} --output {output_dir}/data_pack_market.md",
-  description = "Tushare数据采集"
+  command = "python3 scripts/data_collector.py --code {ts_code} --output {output_dir}/data_pack_market.md",
+  description = "数据采集 (auto provider)"
 )
 ```
 
